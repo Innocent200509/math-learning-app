@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathMaster - Interactive Learning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--glass);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: var(--glass);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        /* Module Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .module-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .module-card:hover::before {
+            left: 100%;
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: var(--primary);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-desc {
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s ease;
+        }
+
+        /* Practice Section */
+        .practice-section {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 3rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: none;
+        }
+
+        .practice-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .problem-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .problem-text {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .answer-input {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            border-radius: 0.5rem;
+            width: 200px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            display: block;
+        }
+
+        .step-by-step {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .step-by-step.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; max-height: 0; }
+            to { opacity: 1; max-height: 500px; }
+        }
+
+        /* Graphing Calculator */
+        .graph-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 2rem 0;
+        }
+
+        #graphCanvas {
+            width: 100%;
+            height: 400px;
+            background: #0f172a;
+            border-radius: 0.5rem;
+        }
+
+        .graph-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Formula Sheet */
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .formula-card {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .formula-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .formula-math {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.25rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; }
+            .modules-grid { grid-template-columns: 1fr; }
+            .practice-section { padding: 1.5rem; }
+        }
+
+        /* Streak Counter */
+        .streak-badge {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            z-index: 100;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Loading Animation */
+        .loader {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <span style="left:10%; animation-delay:0s;"></span>
+        <span style="left:20%; animation-delay:2s;"></span>
+        <span style="left:35%; animation-delay:4s;"></span>
+        <span style="left:50%; animation-delay:0s;"></span>
+        <span style="left:65%; animation-delay:2s;"></span>
+        <span style="left:80%; animation-delay:4s;"></span>
+        <span style="left:90%; animation-delay:0s;"></span>
+    </div>
+
+    <!-- Streak Badge -->
+    <div class="streak-badge" id="streakBadge">
+        <span>🔥</span>
+        <span id="streakCount">0</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <span>📐</span>
+                <span>MathMaster</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" onclick="showSection('home')">Home</a></li>
+                <li><a href="#practice" onclick="showSection('practice')">Practice</a></li>
+                <li><a href="#graphing" onclick="showSection('graphing')">Graphing</a></li>
+                <li><a href="#formulas" onclick="showSection('formulas')">Formulas</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <h1>Master Mathematics</h1>
+            <p>Interactive practice, step-by-step solutions, and powerful tools to help you excel in math</p>
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSolved">0</div>
+                    <div class="stat-label">Problems Solved</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modules Grid -->
+        <section id="modules" class="modules-grid">
+            <div class="module-card" onclick="startPractice('algebra')">
+                <div class="module-icon">🧮</div>
+                <h3 class="module-title">Algebra</h3>
+                <p class="module-desc">Linear equations, quadratics, polynomials, and inequalities</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="algebraProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="module-card" onclick="startPractice('calculus')">
+                <div class="module-icon">📈</div>
+                <h3 class="module-title">Calculus</h3>
+                <p class="module-desc">Derivatives, integrals, limits, and differential equations</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="calculusProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="module-card" onclick="startPractice('geometry')">
+                <div class="module-icon">📐</div>
+                <h3 class="module-title">Geometry</h3>
+                <p class="module-desc">Triangles, circles, proofs, and coordinate geometry</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="geometryProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="module-card" onclick="startPractice('trigonometry')">
+                <div class="module-icon">📊</div>
+                <h3 class="module-title">Trigonometry</h3>
+                <p class="module-desc">Sine, cosine, tangent, identities, and equations</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="trigProgress" style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Section -->
+        <section id="practice" class="practice-section">
+            <h2 id="practiceTitle">Practice Mode</h2>
+            <div class="problem-container">
+                <div class="problem-text" id="problemText">Loading...</div>
+                <input type="text" class="answer-input" id="answerInput" placeholder="?" onkeypress="if(event.key==='Enter')checkAnswer()">
+                <div style="margin-top: 1rem;">
+                    <button class="btn" onclick="checkAnswer()">Submit Answer</button>
+                    <button class="btn btn-secondary" onclick="showHint()">Hint</button>
+                    <button class="btn btn-secondary" onclick="nextProblem()">Skip</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <div class="step-by-step" id="stepByStep"></div>
+            </div>
+            <button class="btn btn-secondary" onclick="showSection('home')">Back to Modules</button>
+        </section>
+
+        <!-- Graphing Calculator -->
+        <section id="graphing" class="practice-section">
+            <h2>Graphing Calculator</h2>
+            <div class="graph-container">
+                <canvas id="graphCanvas"></canvas>
+                <div class="graph-controls">
+                    <input type="text" class="answer-input" id="functionInput" placeholder="e.g., x^2, sin(x), 2x+1" style="width: 300px;">
+                    <button class="btn" onclick="plotFunction()">Plot</button>
+                    <button class="btn btn-secondary" onclick="clearGraph()">Clear</button>
+                </div>
+                <div style="margin-top: 1rem; text-align: center; opacity: 0.8;">
+                    <small>Supported: x^2, sin(x), cos(x), tan(x), sqrt(x), log(x), e^x, |x|</small>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="showSection('home')">Back to Home</button>
+        </section>
+
+        <!-- Formula Sheet -->
+        <section id="formulas" class="practice-section">
+            <h2>Formula Reference</h2>
+            <div class="formula-grid">
+                <div class="formula-card">
+                    <div class="formula-title">Quadratic Formula</div>
+                    <div class="formula-math">x = (-b ± √(b² - 4ac)) / 2a</div>
+                    <small>Solutions to ax² + bx + c = 0</small>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title">Distance Formula</div>
+                    <div class="formula-math">d = √((x₂-x₁)² + (y₂-y₁)²)</div>
+                    <small>Distance between two points</small>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title">Pythagorean Theorem</div>
+                    <div class="formula-math">a² + b² = c²</div>
+                    <small>Right triangle relationship</small>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title">Derivative Power Rule</div>
+                    <div class="formula-math">d/dx[xⁿ] = nxⁿ⁻¹</div>
+                    <small>Basic differentiation</small>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title">Trigonometric Identity</div>
+                    <div class="formula-math">sin²θ + cos²θ = 1</div>
+                    <small>Fundamental identity</small>
+                </div>
+                <div class="formula-card">
+                    <div class="formula-title">Area of Circle</div>
+                    <div class="formula-math">A = πr²</div>
+                    <small>Circle area formula</small>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="showSection('home')">Back to Home</button>
+        </section>
+    </div>
+
+    <script>
+        // State Management
+        let currentSubject = '';
+        let currentProblem = null;
+        let streak = parseInt(localStorage.getItem('mathStreak')) || 0;
+        let totalSolved = parseInt(localStorage.getItem('totalSolved')) || 0;
+        let totalAttempts = parseInt(localStorage.getItem('totalAttempts')) || 0;
+        let subjectProgress = JSON.parse(localStorage.getItem('subjectProgress')) || {
+            algebra: 0, calculus: 0, geometry: 0, trigonometry: 0
+        };
+
+        // Problem Generators
+        const problemGenerators = {
+            algebra: () => {
+                const types = ['linear', 'quadratic', 'system'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                if (type === 'linear') {
+                    const a = Math.floor(Math.random() * 10) + 1;
+                    const b = Math.floor(Math.random() * 20) - 10;
+                    const c = Math.floor(Math.random() * 20) - 10;
+                    const x = Math.floor(Math.random() * 10) - 5;
+                    const result = a * x + b;
+                    return {
+                        text: `Solve for x: ${a}x + ${b} = ${result}`,
+                        answer: x,
+                        steps: [
+                            `Start with: ${a}x + ${b} = ${result}`,
+                            `Subtract ${b} from both sides: ${a}x = ${result - b}`,
+                            `Divide by ${a}: x = ${x}`
+                        ]
+                    };
+                } else if (type === 'quadratic') {
+                    const roots = [Math.floor(Math.random() * 10) - 5, Math.floor(Math.random() * 10) - 5];
+                    const sum = -(roots[0] + roots[1]);
+                    const product = roots[0] * roots[1];
+                    return {
+                        text: `Find the sum of roots: x² ${sum >= 0 ? '+' : ''}${sum}x ${product >= 0 ? '+' : ''}${product} = 0`,
+                        answer: -sum,
+                        steps: [
+                            `For ax² + bx + c = 0, sum of roots = -b/a`,
+                            `Here, a=1, b=${sum}, c=${product}`,
+                            `Sum of roots = -(${sum})/1 = ${-sum}`
+                        ]
+                    };
+                } else {
+                    const x = Math.floor(Math.random() * 10);
+                    const y = Math.floor(Math.random() * 10);
+                    const a1 = Math.floor(Math.random() * 5) + 1;
+                    const b1 = Math.floor(Math.random() * 5) + 1;
+                    const c1 = a1 * x + b1 * y;
+                    const a2 = Math.floor(Math.random() * 5) + 1;
+                    const b2 = Math.floor(Math.random() * 5) + 1;
+                    const c2 = a2 * x + b2 * y;
+                    return {
+                        text: `Solve: ${a1}x + ${b1}y = ${c1} and ${a2}x + ${b2}y = ${c2}`,
+                        answer: `${x},${y}`,
+                        steps: [
+                            `Equation 1: ${a1}x + ${b1}y = ${c1}`,
+                            `Equation 2: ${a2}x + ${b2}y = ${c2}`,
+                            `Multiply Eq1 by ${b2}: ${a1*b2}x + ${b1*b2}y = ${c1*b2}`,
+                            `Multiply Eq2 by ${b1}: ${a2*b1}x + ${b2*b1}y = ${c2*b1}`,
+                            `Subtract: ${a1*b2 - a2*b1}x = ${c1*b2 - c2*b1}`,
+                            `x = ${x}, substitute to find y = ${y}`
+                        ]
+                    };
+                }
+            },
+            
+            calculus: () => {
+                const types = ['derivative', 'integral', 'limit'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                if (type === 'derivative') {
+                    const n = Math.floor(Math.random() * 5) + 2;
+                    return {
+                        text: `Find d/dx[x^${n}]`,
+                        answer: `${n}x^${n-1}`,
+                        steps: [
+                            `Using power rule: d/dx[x^n] = nx^(n-1)`,
+                            `Here n = ${n}`,
+                            `Therefore: ${n}x^${n-1}`
+                        ]
+                    };
+                } else if (type === 'integral') {
+                    const n = Math.floor(Math.random() * 4) + 1;
+                    return {
+                        text: `∫ ${n+1}x^${n} dx`,
+                        answer: `x^${n+1}+c`,
+                        steps: [
+                            `Power rule for integration: ∫x^n dx = x^(n+1)/(n+1) + c`,
+                            `∫ ${n+1}x^${n} dx = ${n+1} * x^${n+1}/${n+1} + c`,
+                            `Simplify: x^${n+1} + c`
+                        ]
+                    };
+                } else {
+                    return {
+                        text: `Find lim(x→0) sin(x)/x`,
+                        answer: '1',
+                        steps: [
+                            `This is a standard limit`,
+                            `lim(x→0) sin(x)/x = 1`,
+                            `Can be proven using L'Hôpital's rule or Taylor series`
+                        ]
+                    };
+                }
+            },
+            
+            geometry: () => {
+                const types = ['pythagorean', 'area', 'angle'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                if (type === 'pythagorean') {
+                    const a = Math.floor(Math.random() * 10) + 1;
+                    const b = Math.floor(Math.random() * 10) + 1;
+                    const c = Math.sqrt(a*a + b*b);
+                    return {
+                        text: `Find hypotenuse: a=${a}, b=${b}`,
+                        answer: Math.round(c * 100) / 100,
+                        steps: [
+                            `Pythagorean theorem: c² = a² + b²`,
+                            `c² = ${a}² + ${b}² = ${a*a} + ${b*b} = ${a*a + b*b}`,
+                            `c = √${a*a + b*b} ≈ ${Math.round(c * 100) / 100}`
+                        ]
+                    };
+                } else if (type === 'area') {
+                    const r = Math.floor(Math.random() * 10) + 1;
+                    return {
+                        text: `Find area of circle with radius ${r}`,
+                        answer: Math.round(Math.PI * r * r * 100) / 100,
+                        steps: [
+                            `Area formula: A = πr²`,
+                            `A = π × ${r}²`,
+                            `A = ${Math.PI.toFixed(2)} × ${r*r} ≈ ${Math.round(Math.PI * r * r * 100) / 100}`
+                        ]
+                    };
+                } else {
+                    const angle = Math.floor(Math.random() * 180);
+                    return {
+                        text: `Find supplementary angle to ${angle}°`,
+                        answer: 180 - angle,
+                        steps: [
+                            `Supplementary angles sum to 180°`,
+                            `Required angle = 180° - ${angle}°`,
+                            `= ${180 - angle}°`
+                        ]
+                    };
+                }
+            },
+            
+            trigonometry: () => {
+                const types = ['basic', 'identity', 'equation'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                if (type === 'basic') {
+                    const angles = [0, 30, 45, 60, 90];
+                    const angle = angles[Math.floor(Math.random() * angles.length)];
+                    const funcs = ['sin', 'cos', 'tan'];
+                    const func = funcs[Math.floor(Math.random() * funcs.length)];
+                    const values = {
+                        'sin': {0: 0, 30: 0.5, 45: 0.707, 60: 0.866, 90: 1},
+                        'cos': {0: 1, 30: 0.866, 45: 0.707, 60: 0.5, 90: 0},
+                        'tan': {0: 0, 30: 0.577, 45: 1, 60: 1.732, 90: 'undefined'}
+                    };
+                    return {
+                        text: `Find ${func}(${angle}°)`,
+                        answer: values[func][angle],
+                        steps: [
+                            `Standard value from unit circle`,
+                            `${func}(${angle}°) = ${values[func][angle]}`,
+                            `Memorize: sin(30°)=1/2, cos(60°)=1/2, tan(45°)=1`
+                        ]
+                    };
+                } else if (type === 'identity') {
+                    const theta = Math.floor(Math.random() * 90);
+                    return {
+                        text: `Simplify: sin²(${theta}°) + cos²(${theta}°)`,
+                        answer: '1',
+                        steps: [
+                            `Fundamental identity: sin²θ + cos²θ = 1`,
+                            `This holds for all values of θ`,
+                            `Therefore answer = 1`
+                        ]
+                    };
+                } else {
+                    return {
+                        text: `Solve: 2sin(x) = 1 for 0° ≤ x ≤ 90°`,
+                        answer: '30',
+                        steps: [
+                            `2sin(x) = 1`,
+                            `sin(x) = 1/2`,
+                            `x = 30° (since sin(30°) = 0.5)`
+                        ]
+                    };
+                }
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            updateProgressBars();
+            initGraph();
+        });
+
+        function updateStats() {
+            document.getElementById('totalSolved').textContent = totalSolved;
+            document.getElementById('streakCount').textContent = streak;
+            document.getElementById('currentStreak').textContent = streak;
+            const accuracy = totalAttempts > 0 ? Math.round((totalSolved / totalAttempts) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function updateProgressBars() {
+            Object.keys(subjectProgress).forEach(subject => {
+                const element = document.getElementById(subject + 'Progress');
+                if (element) {
+                    element.style.width = Math.min(subjectProgress[subject] * 10, 100) + '%';
+                }
+            });
+        }
+
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('modules').style.display = 'none';
+            document.querySelectorAll('.practice-section').forEach(s => {
+                s.classList.remove('active');
+                s.style.display = 'none';
+            });
+            
+            // Show requested section
+            if (section === 'home') {
+                document.getElementById('home').style.display = 'block';
+                document.getElementById('modules').style.display = 'grid';
+            } else if (section === 'practice') {
+                document.getElementById('practice').style.display = 'block';
+                setTimeout(() => document.getElementById('practice').classList.add('active'), 10);
+            } else {
+                const el = document.getElementById(section);
+                el.style.display = 'block';
+                setTimeout(() => el.classList.add('active'), 10);
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function startPractice(subject) {
+            currentSubject = subject;
+            document.getElementById('practiceTitle').textContent = subject.charAt(0).toUpperCase() + subject.slice(1) + ' Practice';
+            showSection('practice');
+            nextProblem();
+        }
+
+        function nextProblem() {
+            const generator = problemGenerators[currentSubject];
+            currentProblem = generator();
+            document.getElementById('problemText').textContent = currentProblem.text;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('stepByStep').className = 'step-by-step';
+            document.getElementById('answerInput').focus();
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById('answerInput').value.trim().toLowerCase();
+            const feedback = document.getElementById('feedback');
+            const steps = document.getElementById('stepByStep');
+            
+            totalAttempts++;
+            
+            let correct = false;
+            if (typeof currentProblem.answer === 'number') {
+                const userAns = parseFloat(input);
+                correct = Math.abs(userAns - currentProblem.answer) < 0.01;
+            } else {
+                correct = input === currentProblem.answer.toString().toLowerCase();
+            }
+            
+            if (correct) {
+                feedback.textContent = '✅ Correct! Great job!';
+                feedback.className = 'feedback correct';
+                totalSolved++;
+                streak++;
+                subjectProgress[currentSubject]++;
+                
+                // Save progress
+                localStorage.setItem('totalSolved', totalSolved);
+                localStorage.setItem('totalAttempts', totalAttempts);
+                localStorage.setItem('mathStreak', streak);
+                localStorage.setItem('subjectProgress', JSON.stringify(subjectProgress));
+                
+                updateStats();
+                updateProgressBars();
+                
+                // Auto next after delay
+                setTimeout(nextProblem, 2000);
+            } else {
+                feedback.textContent = '❌ Incorrect. Try again or view the steps below.';
+                feedback.className = 'feedback incorrect';
+                streak = 0;
+                localStorage.setItem('mathStreak', streak);
+                updateStats();
+            }
+            
+            // Show steps
+            steps.innerHTML = '<h4>Step-by-Step Solution:</h4>' + 
+                currentProblem.steps.map((step, i) => `<p>${i+1}. ${step}</p>`).join('');
+            steps.className = 'step-by-step show';
+        }
+
+        function showHint() {
+            const steps = document.getElementById('stepByStep');
+            steps.innerHTML = '<h4>Hint:</h4><p>' + currentProblem.steps[0] + '</p>';
+            steps.className = 'step-by-step show';
+        }
+
+        // Graphing Calculator
+        let graphCtx;
+        let graphCanvas;
+
+        function initGraph() {
+            graphCanvas = document.getElementById('graphCanvas');
+            graphCtx = graphCanvas.getContext('2d');
+            graphCanvas.width = graphCanvas.offsetWidth;
+            graphCanvas.height = 400;
+            drawGrid();
+        }
+
+        function drawGrid() {
+            const ctx = graphCtx;
+            const w = graphCanvas.width;
+            const h = graphCanvas.height;
+            const scale = 40;
+            
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            
+            // Grid lines
+            for (let x = w/2; x < w; x += scale) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let x = w/2; x > 0; x -= scale) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = h/2; y < h; y += scale) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+            for (let y = h/2; y > 0; y -= scale) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+            
+            // Axes
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+        }
+
+        function plotFunction() {
+            const funcStr = document.getElementById('functionInput').value;
+            if (!funcStr) return;
+            
+            drawGrid();
+            
+            const ctx = graphCtx;
+            const w = graphCanvas.width;
+            const h = graphCanvas.height;
+            const scale = 40;
+            
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let first = true;
+            for (let px = 0; px < w; px++) {
+                const x = (px - w/2) / scale;
+                let y;
+                
+                try {
+                    // Parse function
+                    let expr = funcStr.toLowerCase()
+                        .replace(/sin/g, 'Math.sin')
+                        .replace(/cos/g, 'Math.cos')
+                        .replace(/tan/g, 'Math.tan')
+                        .replace(/sqrt/g, 'Math.sqrt')
+                        .replace(/log/g, 'Math.log')
+                        .replace(/pi/g, 'Math.PI')
+                        .replace(/e\^/g, 'Math.exp')
+                        .replace(/\^/g, '**')
+                        .replace(/abs/g, 'Math.abs');
+                    
+                    y = eval(expr);
+                } catch (e) {
+                    continue;
+                }
+                
+                const py = h/2 - y * scale;
+                
+                if (py >= 0 && py <= h) {
+                    if (first) {
+                        ctx.moveTo(px, py);
+                        first = false;
+                    } else {
+                        ctx.lineTo(px, py);
+                    }
+                } else {
+                    first = true;
+                }
+            }
+            ctx.stroke();
+        }
+
+        function clearGraph() {
+            document.getElementById('functionInput').value = '';
+            drawGrid();
+        }
+
+        // Handle window resize for graph
+        window.addEventListener('resize', () => {
+            if (document.getElementById('graphing').classList.contains('active')) {
+                initGraph();
+            }
+        });
+    </script>
+</body>
+</html>
